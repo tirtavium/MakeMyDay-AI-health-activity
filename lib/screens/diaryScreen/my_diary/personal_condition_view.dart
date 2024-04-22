@@ -28,6 +28,7 @@ class _PersonalConditionViewState extends State<PersonalConditionView>
   @override
   Widget build(BuildContext context) {
     final healthCondition = widget.user.healthConditions.join(",");
+    
     return AnimatedBuilder(
       animation: widget.mainScreenAnimationController!,
       builder: (BuildContext context, Widget? child) {
@@ -46,7 +47,7 @@ class _PersonalConditionViewState extends State<PersonalConditionView>
                       topLeft: Radius.circular(8.0),
                       bottomLeft: Radius.circular(8.0),
                       bottomRight: Radius.circular(8.0),
-                      topRight: Radius.circular(68.0)),
+                      topRight: Radius.circular(8.0)),
                   boxShadow: <BoxShadow>[
                     BoxShadow(
                         color: FitnessAppTheme.grey.withOpacity(0.2),
@@ -56,8 +57,7 @@ class _PersonalConditionViewState extends State<PersonalConditionView>
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(
-                      top: 16, left: 16, right: 16, bottom: 16),
-                  child: Expanded(
+                      top: 10, left: 2, right: 2, bottom: 2),
                     child: Column(
                       children: <Widget>[
                         Column(
@@ -66,7 +66,7 @@ class _PersonalConditionViewState extends State<PersonalConditionView>
                           children: <Widget>[
                             Padding(
                               padding: const EdgeInsets.only(
-                                  left: 4, top: 2, bottom: 14),
+                                  left: 4, top: 12, bottom: 2),
                               child: Text(
                                 'my health conditions are $healthCondition',
                                 textAlign: TextAlign.start,
@@ -81,7 +81,7 @@ class _PersonalConditionViewState extends State<PersonalConditionView>
                             ),
                             Padding(
                               padding: const EdgeInsets.only(
-                                  left: 4, top: 2, bottom: 14),
+                                  left: 4, top: 2, bottom: 2),
                               child: Text(
                                 'my current medications are ${widget.user.medicationCurrent.join(",")}',
                                 textAlign: TextAlign.start,
@@ -96,7 +96,7 @@ class _PersonalConditionViewState extends State<PersonalConditionView>
                             ),
                             Padding(
                               padding: const EdgeInsets.only(
-                                  left: 4, top: 2, bottom: 14),
+                                  left: 4, top: 2, bottom: 2),
                               child: Text(
                                 'my food alergies are ${widget.user.foodAlergies.join(",")}',
                                 textAlign: TextAlign.start,
@@ -129,7 +129,6 @@ class _PersonalConditionViewState extends State<PersonalConditionView>
                 ),
               ),
             ),
-          ),
         );
       },
     );
