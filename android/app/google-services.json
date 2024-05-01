@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "640364175281",
+    "project_id": "nurseai-fdbf4",
+    "storage_bucket": "nurseai-fdbf4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640364175281:android:a10b894e41b7dabb026790",
+        "android_client_info": {
+          "package_name": "com.example.MakeMyDay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByv_YjDgNn_I_PlEbo-vFrHVV8yFweG44"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
