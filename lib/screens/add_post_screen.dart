@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:MakeMyDay/models/SearchFoodItem.dart';
 import 'package:MakeMyDay/models/prompt_question.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,9 +24,15 @@ class AddPostScreen extends StatefulWidget {
 }
 
 class _AddPostScreenState extends State<AddPostScreen> {
+  List mealList = ["Breakfast", "Lunch", "Dinner", "Snacks", "Dessert"];
   Uint8List? _file;
   bool isLoading = false;
-  PromptResult _promptAnalized = PromptResult(diagnoseDescription: "", takeActionDescription: '', imageType: PromptImageType.notdetected);
+  String? valueChooseFoodCategory;
+  SearchFoodItem? valueChooseFoodDetail;
+  PromptResult _promptAnalized = PromptResult(null,
+      diagnoseDescription: "",
+      takeActionDescription: '',
+      imageType: PromptImageType.notdetected);
   final TextEditingController _descriptionController = TextEditingController();
   String question1 = "";
   String question2 = "";
@@ -49,14 +56,17 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   });
                   final promptAnalized =
                       await GeminiService().getPromptFromImage(file, user);
-                      PromptQuestion question = PromptQuestionFactory().getQuestion(promptAnalized.imageType);
+                  PromptQuestion question = PromptQuestionFactory()
+                      .getQuestion(promptAnalized.imageType);
                   setState(() {
                     question1 = question.diagnoseQuestion;
                     question2 = question.takeActionQuestion;
                     _promptAnalized = promptAnalized;
+                    if(promptAnalized.detailFoods != null) {
+                        valueChooseFoodDetail = promptAnalized.detailFoods![0];
+                    }
                     isLoading = false;
                   });
-           
                 }),
             SimpleDialogOption(
                 padding: const EdgeInsets.all(20),
@@ -70,14 +80,17 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   });
                   final promptAnalized =
                       await GeminiService().getPromptFromImage(file, user);
-                  PromptQuestion question = PromptQuestionFactory().getQuestion(promptAnalized.imageType);
+                  PromptQuestion question = PromptQuestionFactory()
+                      .getQuestion(promptAnalized.imageType);
                   setState(() {
                     _promptAnalized = promptAnalized;
+                     if(promptAnalized.detailFoods != null) {
+                        valueChooseFoodDetail = promptAnalized.detailFoods![0];
+                    }
                     question1 = question.diagnoseQuestion;
                     question2 = question.takeActionQuestion;
                     isLoading = false;
                   });
-               
                 }),
             SimpleDialogOption(
               padding: const EdgeInsets.all(20),
@@ -101,13 +114,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
     try {
       // upload to storage and db
       String res = await FireStoreMethods().uploadPost(
-        _descriptionController.text,
-        _file!,
-        uid,
-        username,
-        profImage,
-        _promptAnalized
-      );
+          _descriptionController.text,
+          _file!,
+          uid,
+          username,
+          profImage,
+          _promptAnalized);
       if (res == "success") {
         setState(() {
           isLoading = false;
@@ -136,15 +148,22 @@ class _AddPostScreenState extends State<AddPostScreen> {
     }
   }
 
-  void postRequiredActionImage(String uid, String username, String description) async {
+  void postRequiredActionImage(
+      String uid, String username, String description) async {
     setState(() {
       isLoading = true;
     });
     try {
-      
-      String actionId = const Uuid().v1(); 
-      final actionRequired = ActionRequiredPost(selectedDate: DateTime.now(), description: description, uid: uid, username: username, datePublished: DateTime.now(), actionRequiredId: actionId);
-      String res = await FireStoreMethods().uploadActionRequiderPost(actionRequired);
+      String actionId = const Uuid().v1();
+      final actionRequired = ActionRequiredPost(
+          selectedDate: DateTime.now(),
+          description: description,
+          uid: uid,
+          username: username,
+          datePublished: DateTime.now(),
+          actionRequiredId: actionId);
+      String res =
+          await FireStoreMethods().uploadActionRequiderPost(actionRequired);
       if (res == "success") {
         setState(() {
           isLoading = false;
@@ -201,16 +220,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
             appBar: AppBar(
               backgroundColor: mobileBackgroundColor,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back), color: black,
+                icon: const Icon(Icons.arrow_back),
+                color: black,
                 onPressed: clearImage,
               ),
-              title: const Text(
-                'Post to', 
-                style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0)
-              ),
+              title: const Text('Post to',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0)),
               centerTitle: false,
               actions: <Widget>[
                 TextButton(
@@ -276,32 +294,36 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     isLoading
-                    ? const LinearProgressIndicator() :
-                    ListTile(
-                      leading: const Icon(Icons.assignment_add),
-                      title: Text('$question1 (Not For Medical Purpose)'),
-                      subtitle: Text(_promptAnalized.diagnoseDescription),
-                    ),
+                        ? const LinearProgressIndicator()
+                        : ListTile(
+                            leading: const Icon(Icons.assignment_add),
+                            title: Text('$question1 (Not For Medical Purpose)'),
+                            subtitle: Text(_promptAnalized.diagnoseDescription),
+                          ),
                   ],
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                   isLoading
-                    ? const LinearProgressIndicator() :
-                    ListTile(
-                      leading: const Icon(Icons.add_alarm),
-                      title: Text('$question2 (Not For Medical Purpose)'),
-                      subtitle: Text(_promptAnalized.takeActionDescription),
-                    ),
+                    isLoading
+                        ? const LinearProgressIndicator()
+                        : ListTile(
+                            leading: const Icon(Icons.add_alarm),
+                            title: Text('$question2 (Not For Medical Purpose)'),
+                            subtitle:
+                                Text(_promptAnalized.takeActionDescription),
+                          ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
+                      children: <Widget>[ 
                         const SizedBox(width: 12),
+                        if ( _promptAnalized.imageTypeDescription == "medicine" ) 
                         TextButton(
                           child: const Text('Set Reminder'),
-                          onPressed: () {/* ... */
-                          postRequiredActionImage( user.uid, user.username, _promptAnalized.takeActionDescription);
+                          onPressed: () {
+                            /* ... */
+                            postRequiredActionImage(user.uid, user.username,
+                                _promptAnalized.takeActionDescription);
                           },
                         ),
                         const SizedBox(width: 8),
@@ -310,6 +332,96 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ],
                 ),
                 const Divider(),
+               
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                  child:  _promptAnalized.imageTypeDescription != "food" ? null : 
+                   Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: MyColors.darkGreen), // Change the color here
+                      ),
+                    ),
+                    dropdownColor:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.green.shade100
+                            : Colors.black,
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? MyColors.darkGreen
+                          : Colors.white,
+                      fontSize: 18,
+                    ),
+                    value: valueChooseFoodCategory,
+                    onChanged: (newValue) {
+                      setState(() {
+                        valueChooseFoodCategory = newValue!;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter Category";
+                      }
+                      return null;
+                    },
+                    items: mealList.map((valueItem) {
+                      return DropdownMenuItem<String>(
+                        value: valueItem,
+                        child: Text(valueItem),
+                      );
+                    }).toList(),
+                  ),
+                    DropdownButtonFormField<SearchFoodItem>(
+                    decoration: const InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: MyColors.darkGreen), // Change the color here
+                      ),
+                    ),
+                    dropdownColor:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.green.shade100
+                            : Colors.black,
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? MyColors.darkGreen
+                          : Colors.white,
+                      fontSize: 18,
+                    ),
+                    value: valueChooseFoodDetail,
+                    onChanged: (newValue) {
+                      setState(() {
+                        valueChooseFoodDetail = newValue!;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null ) {
+                        return "Please enter food detail";
+                      }
+                      return null;
+                    },
+                    items: _promptAnalized.detailFoods?.map((valueItem) {
+                      return DropdownMenuItem<SearchFoodItem>(
+                        value: valueItem,
+                        child: Text(valueItem.foodName),
+                      );
+                    }).toList(),
+                  ),
+                   ListTile(
+                            leading: const Icon(Icons.assignment_add),
+                            title: Text('Nutrition'),
+                            subtitle: Text(valueChooseFoodDetail?.foodDescription ?? ""),
+                          ),
+                  ],
+                  
+                   ),
+                  
+                ),
               ],
             ),
           );

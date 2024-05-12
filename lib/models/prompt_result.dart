@@ -1,4 +1,6 @@
 
+import 'package:MakeMyDay/models/SearchFoodItem.dart';
+
 enum PromptImageType { food, medicine, disease, notdetected }
 
 class PromptResult {
@@ -6,7 +8,8 @@ class PromptResult {
   final String diagnoseDescription;
   final String takeActionDescription;
   String imageTypeDescription = "";
-  PromptResult({required this.imageType, required this.diagnoseDescription, required this.takeActionDescription}){
+  final List<SearchFoodItem>? detailFoods;
+  PromptResult(this.detailFoods, {required this.imageType, required this.diagnoseDescription, required this.takeActionDescription}){
     if (imageType == PromptImageType.food) {
           imageTypeDescription = "food";
     }
@@ -45,7 +48,7 @@ class PromptResult {
   
   static PromptResult fromSnap(Map<String, dynamic> snap) {
     
-   return PromptResult(imageType: PromptResult.getPromptTypeImage(snap['imageType']), diagnoseDescription: snap['diagnoseDescription'], takeActionDescription: snap['takeActionDescription']);
+   return PromptResult(null, imageType: PromptResult.getPromptTypeImage(snap['imageType']), diagnoseDescription: snap['diagnoseDescription'], takeActionDescription: snap['takeActionDescription']);
 
   }
 }

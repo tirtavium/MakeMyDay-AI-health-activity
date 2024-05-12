@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'dart:io';
+import 'package:MakeMyDay/models/SearchFoodItem.dart';
 import 'package:MakeMyDay/resources/PrivateKeyConstant.dart';
 import 'package:MakeMyDay/resources/fat_secret_service.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -14,14 +15,7 @@ class GeminiService {
 
   Future<PromptResult> getPromptFromImage(Uint8List file, User user) async {
     //if we do prompt all at once, the result realy bad.
-      final restFS = RestClientFatSecreet();
-      final desct = await restFS.searchFood("donat");
-      print(desct);
-       final result1 = PromptResult(
-        imageType: PromptImageType.food,
-        diagnoseDescription: "responseDiagnoseText",
-        takeActionDescription: "responseTakeActionText");
-      return result1;
+    
     if (apiKey == null) {
       print('No \$API_KEY environment variable');
       exit(1);
@@ -48,10 +42,13 @@ class GeminiService {
         TextPart("The output should be a JSON with key question1, question2");
 
     var promptToGemini = [myHealthCondition,myCurrentMedication,myFoodAlergies, promptDiagnose,contentTakeAction,responseFormat, ...imageParts];
+    List<SearchFoodItem> listFoodDetail = [];
     if (typeOfImage.imageType == PromptImageType.food) {
+
       final restFS = RestClientFatSecreet();
-      final desct = restFS.searchFood(typeOfImage.what);
+      final desct = await restFS.searchFood(typeOfImage.what);
       print(desct);
+      listFoodDetail = desct;
     }
     final responseTakeAction = await model.generateContent([
       Content.multi(
@@ -65,10 +62,10 @@ class GeminiService {
     final responseDiagnoseText = jsonResponse["question1"];
     final responseTakeActionText = jsonResponse["question2"];
     final result = PromptResult(
+        listFoodDetail,
         imageType: typeOfImage.imageType,
         diagnoseDescription: responseDiagnoseText,
         takeActionDescription: responseTakeActionText);
-
     return result;
   }
 
@@ -88,7 +85,7 @@ class GeminiService {
     final promptType = TextPart(
         "question1: choose the type of image?, option: 1. medicine 2. food 3. medical condition");
     final promptWhat = TextPart(
-        "question2: what is this?");
+        "question2: name?");
    final responseFormat =
         TextPart("The output should be a JSON with key question1, question2");
     final response = await model.generateContent([

@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 
-class FatSecretApi2 {
+class FatSecretApi {
 
   final String fatSecretApiBaseUrl = "platform.fatsecret.com";
 
@@ -15,31 +15,32 @@ class FatSecretApi2 {
 
   late Hmac _sigHasher;
 
-  FatSecretApi2(this.consumerKey, this.consumerKeySecret, this.accessToken,
+  FatSecretApi(this.consumerKey, this.consumerKeySecret, this.accessToken,
       this.accessTokenSecret) {
     var bytes = utf8.encode("$consumerKeySecret&$accessTokenSecret");
     _sigHasher = Hmac(sha1, bytes);
   }
 
-  FatSecretApi2 forceXml() {
-    this.isJson = false;
+  FatSecretApi forceXml() {
+    isJson = false;
     return this;
   }
 
   /// Sends a tweet with the supplied text and returns the response from the Twitter API.
   Future<http.Response> request(Map<String, String> data) {
+   
     if (isJson) {
       data["format"] = "json";
     }
+
     return _callGetApi("rest/server.api", data);
   }
 
   Future<http.Response> _callGetApi(String url, Map<String, String> data) {
     Uri requestUrl = Uri.https(fatSecretApiBaseUrl, url);
-
     print(data["method"]);
     _setAuthParams("GET", requestUrl.toString(), data);
-
+    
     requestUrl = Uri.https(requestUrl.authority, requestUrl.path, data);
 
     String oAuthHeader = _generateOAuthHeader(data);

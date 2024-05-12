@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:MakeMyDay/models/SearchFoodItem.dart';
 import 'package:MakeMyDay/resources/PrivateKeyConstant.dart';
-import 'package:MakeMyDay/resources/fat_secret_service2.dart';
+import 'package:MakeMyDay/resources/FatSecretApi2.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
@@ -12,7 +12,6 @@ import 'package:sortedmap/sortedmap.dart';
 
 class RestClientFatSecreet {
   // if  you don't have one, generate from fatSecret API
-  
 
   // creates a new RestClient instance.
   // try to make singleton too avoid multiple instances
@@ -27,39 +26,32 @@ class RestClientFatSecreet {
    * please refer to model package.
    */
   Future<List<SearchFoodItem>> searchFood(String query) async {
-     List<SearchFoodItem> list = [];
+    List<SearchFoodItem> list = [];
     // FatSecretApi be sure that consumer keys are set before you send a call
-    FatSecretApi2 foodSearch = FatSecretApi2(
-      consumerKey,
-      consumerKeySecret, "",""
-    );
-   var result = await foodSearch
+    FatSecretApi foodSearch =
+        FatSecretApi(consumerKey, consumerKeySecret, "", "");
+    var result = await foodSearch
         .request({"search_expression": query, "method": "foods.search"});
 
-    
-     if (result.statusCode == 200) {
+    if (result.statusCode == 200) {
       var responseMap = await json.decode(result.body);
-     //print(responseMap["foods"]["food"]);
-    
-    responseMap["foods"]["food"].forEach((foodItem) =>  
-    
-      list.add(convertSearchFoodItem(foodItem)) 
-   
-    );
- 
-     }
-    // Create a POJO clasrs and parse it
-    // list.add(SearchFoodItem.fromJson(result.body[0] as Map<String, String>));
 
+      responseMap["foods"]["food"]
+          .forEach((foodItem) => list.add(convertSearchFoodItem(foodItem)));
+    }
     return list;
   }
-  SearchFoodItem convertSearchFoodItem(dynamic data){
+
+  SearchFoodItem convertSearchFoodItem(dynamic data) {
     final Map map = Map.from(data);
     final foodItem = SearchFoodItem.fromJson(map);
+    print(foodItem.brandName);
     print(foodItem.foodDescription);
+    print(foodItem.foodUrl);
+    print(foodItem.foodType);
+    print(foodItem.foodName);
     return foodItem;
-  } 
-
+  }
 
   /*
    * Sends an API call to "profile.create" method on fatSecret APi
@@ -68,12 +60,10 @@ class RestClientFatSecreet {
    * please refer to fatSecret return types
    */
   Future<Map> createProfile(String userId) async {
-
     // Be sure that consumer keys are set before you send a call
-    FatSecretApi2 api = FatSecretApi2(consumerKey, consumerKeySecret,"","");
+    FatSecretApi api = FatSecretApi(consumerKey, consumerKeySecret, "", "");
 
-    var response =
-        api.request({"method": "profile.create", "user_id": userId});
+    var response = api.request({"method": "profile.create", "user_id": userId});
 
     var jsonBody = await response.then((res) => res.body).then(json.decode);
 
@@ -94,8 +84,7 @@ class RestClientFatSecreet {
    */
   Future<Map> getProfileAuth(String userId) async {
     //var session = await Preferences().getUserSession();
-    var api =
-        FatSecretApi2(consumerKey, consumerKeySecret, "","");
+    var api = FatSecretApi(consumerKey, consumerKeySecret, "", "");
     var jsonBody = await api
         .request({"method": "profile.get_auth", "user_id": userId})
         .then((res) => res.body)
