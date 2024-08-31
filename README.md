@@ -10,11 +10,7 @@ Firebase
 
 ## Usage
 
-<div align="left">
-      <a href="https://www.youtube.com/watch?v=XuP5njzkPtw">
-       <img src="https://www.youtube.com/watch?v=XuP5njzkPtw/0.jpg" style="width:60%;">
-      </a>
-</div>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/XuP5njzkPtw?si=tqWhrdRHkDImd-VH" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## License
 
