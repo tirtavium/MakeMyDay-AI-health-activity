@@ -15,9 +15,10 @@ Firebase
      <img 
       src="https://img.youtube.com/vi/XuP5njzkPtw/0.jpg" 
       alt="Make My Day" 
-      style="width:100%;">
+      style="width:70%;">
       </a>
     </div>
+    
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
